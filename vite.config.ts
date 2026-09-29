@@ -28,6 +28,9 @@ export default defineConfig(() => {
           statistics: path.resolve(__dirname, 'statistics.html'),
           safety: path.resolve(__dirname, 'safety.html'),
           about: path.resolve(__dirname, 'about.html'),
+          contact: path.resolve(__dirname, 'contact.html'),
+          adminTickets: path.resolve(__dirname, 'admin-tickets.html'),
+          adminAccount: path.resolve(__dirname, 'admin-account.html'),
         }
       }
     },
