@@ -1,4 +1,4 @@
-import type { SafetyQnAItem } from "./roadSafetyQnA";
+import type { SafetyQnAItem } from "./roadSafetyQnA.js";
 
 export const ROAD_SAFETY_QNA_PART3: SafetyQnAItem[] = [
   // ==========================================

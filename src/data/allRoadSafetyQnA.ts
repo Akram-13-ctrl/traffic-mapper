@@ -1,8 +1,8 @@
-import { ROAD_SAFETY_QNA, ROAD_SAFETY_CATEGORIES } from "./roadSafetyQnA";
-import type { SafetyQnAItem } from "./roadSafetyQnA";
-import { ROAD_SAFETY_QNA_PART2 } from "./roadSafetyQnA2";
-import { ROAD_SAFETY_QNA_PART3 } from "./roadSafetyQnA3";
-import { ROAD_SAFETY_QNA_PART4 } from "./roadSafetyQnA4";
+import { ROAD_SAFETY_QNA, ROAD_SAFETY_CATEGORIES } from "./roadSafetyQnA.js";
+import type { SafetyQnAItem } from "./roadSafetyQnA.js";
+import { ROAD_SAFETY_QNA_PART2 } from "./roadSafetyQnA2.js";
+import { ROAD_SAFETY_QNA_PART3 } from "./roadSafetyQnA3.js";
+import { ROAD_SAFETY_QNA_PART4 } from "./roadSafetyQnA4.js";
 
 export { ROAD_SAFETY_CATEGORIES };
 export type { SafetyQnAItem };

@@ -1,5 +1,5 @@
-import { DUMMY_ACCIDENTS, AccidentRecord } from "../data/dummyData";
-import { findSafetyAnswer } from "../data/allRoadSafetyQnA";
+import { DUMMY_ACCIDENTS, AccidentRecord } from "../data/dummyData.js";
+import { findSafetyAnswer } from "../data/allRoadSafetyQnA.js";
 
 export interface ChatHistoryItem {
   role: string;

@@ -1,8 +1,8 @@
 import express from "express";
 import { GoogleGenAI } from "@google/genai";
 import dotenv from "dotenv";
-import { localGisEngine } from "../src/services/localGisEngine";
-import { findSafetyAnswer, ALL_ROAD_SAFETY_QNA, ROAD_SAFETY_CATEGORIES } from "../src/data/allRoadSafetyQnA";
+import { localGisEngine } from "../src/services/localGisEngine.js";
+import { findSafetyAnswer, ALL_ROAD_SAFETY_QNA, ROAD_SAFETY_CATEGORIES } from "../src/data/allRoadSafetyQnA.js";
 
 dotenv.config();
 
