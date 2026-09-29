@@ -19,7 +19,7 @@ async function startServer() {
   function isValidGeminiApiKey(key: string | undefined): boolean {
     if (!key) return false;
     const cleanKey = key.trim();
-    return cleanKey.startsWith("AIza") && cleanKey.length >= 30 && cleanKey !== "MY_GEMINI_API_KEY";
+    return cleanKey.length >= 30 && cleanKey !== "MY_GEMINI_API_KEY";
   }
 
   // Dynamic Gemini AI client provider that checks the environment at runtime
