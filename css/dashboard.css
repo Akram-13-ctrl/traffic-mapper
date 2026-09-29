@@ -1,0 +1,38 @@
+/* Dashboard layouts and Sidebars */
+.sidebar {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@media (max-width: 1024px) {
+  .sidebar-hidden {
+    transform: translateX(-100%);
+  }
+}
+
+.nav-link-active {
+  background-color: #f1f5f9;
+  color: #0f172a;
+  font-weight: 600;
+  border-left: 4px solid #ef4444;
+}
+
+.nav-link-inactive {
+  color: #64748b;
+  font-weight: 500;
+  border-left: 4px solid transparent;
+}
+
+.nav-link-inactive:hover {
+  background-color: #f8fafc;
+  color: #1e293b;
+  border-left-color: #e2e8f0;
+}
+
+.kpi-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.kpi-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.05);
+}

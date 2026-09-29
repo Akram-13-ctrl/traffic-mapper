@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Accident Mapper (Public Map) - Hotspot Mapper</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/dashboard.css">
+  <link rel="stylesheet" href="/css/responsive.css">
+  <!-- Leaflet CDN -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- Leaflet Heatmap Plugin CDN -->
+  <script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
+  <script type="module" src="/js/theme.js"></script>
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col lg:flex-row">
+
+  <!-- Security Guard -->
+  <script type="module" src="/js/role-guard.js"></script>
+
+  <!-- Sidebar -->
+  <div id="sidebar-container" class="lg:flex-shrink-0"></div>
+
+  <!-- Loading Overlay -->
+  <div id="loading-overlay" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center z-50 transition-all">
+    <div class="bg-white p-6 rounded-2xl shadow-xl flex flex-col items-center gap-3">
+      <div class="w-10 h-10 border-4 border-slate-200 border-t-blue-600 rounded-full animate-spin"></div>
+      <p class="text-xs font-semibold text-slate-600">Building Accident GIS Map...</p>
+    </div>
+  </div>
+
+  <!-- Main Workspace -->
+  <main class="flex-1 flex flex-col min-h-screen md:h-screen overflow-y-auto md:overflow-hidden">
+    
+    <!-- Header -->
+    <div class="bg-white border-b border-slate-100 p-4 md:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 z-20 shrink-0">
+      <div>
+        <h2 class="font-display font-extrabold text-xl text-slate-800 tracking-tight">Accident Mapper</h2>
+        <p class="text-[11px] text-slate-400 font-medium">Explore and view accident hotspots and high-risk road locations.</p>
+      </div>
+
+      <!-- Quick counters -->
+      <div class="flex gap-4">
+        <div class="bg-slate-50 border border-slate-100 px-3 py-1 rounded-xl flex items-center gap-2 shadow-xs">
+          <span class="w-2 h-2 bg-blue-500 rounded-full"></span>
+          <span class="text-xs text-slate-500 font-semibold">Filtered: <strong id="map-total-count" class="text-slate-800">0</strong> cases</span>
+        </div>
+        <div class="bg-slate-50 border border-slate-100 px-3 py-1 rounded-xl flex items-center gap-2 shadow-xs">
+          <span class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+          <span class="text-xs text-slate-500 font-semibold">Red Zone (Fatal): <strong id="map-fatal-count" class="text-slate-800">0</strong></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Map Area and control board wrapper -->
+    <div class="flex-1 flex flex-col md:flex-row relative min-h-0">
+      
+      <!-- Filters board -->
+      <div class="w-full md:w-85 bg-white dark:bg-slate-900 border-b md:border-b-0 md:border-r border-slate-100 dark:border-slate-800 p-5 space-y-5 overflow-y-auto z-20 shrink-0 md:h-full">
+        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider font-mono">Map Search & Filters</h3>
+
+        <div class="space-y-4">
+          <!-- Search Bar with Auto-Zoom -->
+          <div class="space-y-1 relative">
+            <label for="search-location-input" class="text-xs font-bold text-slate-700 dark:text-slate-200">Search Road or District</label>
+            <div class="relative">
+              <input type="text" id="search-location-input" placeholder="e.g., Federal Highway, Ampang..." class="w-full pl-8 pr-8 py-2.5 text-xs rounded-xl border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-blue-500 bg-slate-50/50 dark:bg-slate-800 text-slate-800 dark:text-white" autocomplete="off">
+              <span class="absolute left-2.5 top-2.5 text-slate-400 text-xs">🔍</span>
+              <button id="clear-search-btn" class="hidden absolute right-2.5 top-2 text-slate-400 hover:text-slate-600 dark:hover:text-white p-1 text-xs cursor-pointer">✕</button>
+            </div>
+            <!-- Auto-Suggest Results Dropdown -->
+            <div id="search-autocomplete-list" class="hidden absolute left-0 right-0 top-full mt-1 max-h-48 overflow-y-auto bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl z-30 divide-y divide-slate-100 dark:divide-slate-700"></div>
+          </div>
+
+          <!-- State (Negeri) option -->
+          <div class="space-y-1">
+            <label for="filter-negeri" class="text-xs font-bold text-slate-700 dark:text-slate-200">Select State (Negeri)</label>
+            <select id="filter-negeri" class="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-200 dark:border-slate-700 focus:outline-none bg-slate-50/50 dark:bg-slate-800 text-slate-800 dark:text-white">
+              <option value="all">All States (Seluruh Malaysia)</option>
+            </select>
+          </div>
+
+          <!-- District option -->
+          <div class="space-y-1">
+            <label for="filter-daerah" class="text-xs font-bold text-slate-700 dark:text-slate-200">Select District (Daerah)</label>
+            <select id="filter-daerah" class="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-200 dark:border-slate-700 focus:outline-none bg-slate-50/50 dark:bg-slate-800 text-slate-800 dark:text-white">
+              <option value="all">All Districts</option>
+            </select>
+          </div>
+
+          <!-- Severity option -->
+          <div class="space-y-1">
+            <label for="filter-severity" class="text-xs font-bold text-slate-700 dark:text-slate-200">Severity Level</label>
+            <select id="filter-severity" class="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-200 dark:border-slate-700 focus:outline-none bg-slate-50/50 dark:bg-slate-800 text-slate-800 dark:text-white">
+              <option value="all">All Severities</option>
+              <option value="Fatal">Fatal</option>
+              <option value="Serious">Serious</option>
+              <option value="Minor">Minor</option>
+            </select>
+          </div>
+
+          <!-- Vehicle Type Option -->
+          <div class="space-y-1">
+            <label for="filter-vehicle" class="text-xs font-bold text-slate-700 dark:text-slate-200">Vehicle Type</label>
+            <select id="filter-vehicle" class="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-200 dark:border-slate-700 focus:outline-none bg-slate-50/50 dark:bg-slate-800 text-slate-800 dark:text-white">
+              <option value="all">All Vehicles</option>
+              <option value="Motorcycle">Motorcycle</option>
+              <option value="Car">Car</option>
+              <option value="Lorry">Lorry/Truck</option>
+              <option value="Bus">Bus</option>
+            </select>
+          </div>
+        </div>
+
+        <hr class="border-slate-100 dark:border-slate-800">
+
+        <!-- Google Maps Data & Live Grounding Card -->
+        <div class="p-4 bg-gradient-to-br from-blue-50 to-indigo-50/50 dark:from-slate-800/90 dark:to-slate-800/60 rounded-2xl border border-blue-100 dark:border-slate-700 space-y-3">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-1.5">
+              <span class="text-base">🗺️</span>
+              <h4 class="text-xs font-bold text-slate-800 dark:text-white font-display">Google Maps Data</h4>
+            </div>
+            <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-blue-600 text-white">gemini-3.5-flash</span>
+          </div>
+          <p class="text-[11px] text-slate-600 dark:text-slate-300 leading-snug">
+            Query real-time Google Maps places, emergency hospitals, police stations, and road infrastructure.
+          </p>
+          <div class="space-y-2">
+            <div class="flex gap-1.5">
+              <input type="text" id="gmaps-sidebar-input" placeholder="e.g. Hospitals near Federal Highway" class="flex-1 px-3 py-1.5 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-white focus:outline-none focus:border-blue-500">
+              <button id="gmaps-sidebar-search-btn" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold cursor-pointer transition-colors shrink-0">Find</button>
+            </div>
+            <!-- Quick Chips -->
+            <div class="flex flex-wrap gap-1 text-[10px]">
+              <button class="gmaps-chip px-2 py-0.5 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded-lg hover:border-blue-400 cursor-pointer" data-q="Trauma hospitals and emergency centers near Federal Highway">🏥 Hospitals</button>
+              <button class="gmaps-chip px-2 py-0.5 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded-lg hover:border-blue-400 cursor-pointer" data-q="PDRM traffic police stations in Petaling Jaya">👮 Police</button>
+              <button class="gmaps-chip px-2 py-0.5 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded-lg hover:border-blue-400 cursor-pointer" data-q="Balai Bomba and rescue near Jalan Ampang">🚒 Bomba</button>
+            </div>
+          </div>
+          <div id="gmaps-sidebar-results" class="hidden text-xs space-y-2 max-h-56 overflow-y-auto pt-2 border-t border-blue-100 dark:border-slate-700"></div>
+        </div>
+
+        <hr class="border-slate-100 dark:border-slate-800">
+
+        <!-- Safe legend -->
+        <div class="p-4 bg-slate-50 rounded-xl border border-slate-100 space-y-2">
+          <h5 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider font-mono">Map Legend</h5>
+          <div class="space-y-1.5 text-xs">
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 bg-red-500 rounded-full border border-white"></span>
+              <span class="text-slate-600">Fatal Case (Danger Zone)</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 bg-yellow-500 rounded-full border border-white"></span>
+              <span class="text-slate-600">Serious Case</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 bg-green-500 rounded-full border border-white"></span>
+              <span class="text-slate-600">Minor Case</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Map Div -->
+      <div id="accident-map" class="flex-1 w-full min-h-[450px] md:min-h-0 md:h-full bg-slate-100 dark:bg-slate-950 z-10"></div>
+    </div>
+
+  </main>
+
+  <!-- Load scripts -->
+  <script type="module" src="/js/navigation.js"></script>
+  <script type="module" src="/js/hazard-alerts.js"></script>
+  <script type="module" src="/js/mapper.js"></script>
+</body>
+</html>
+

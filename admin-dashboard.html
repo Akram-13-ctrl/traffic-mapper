@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - Hotspot Mapper</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/dashboard.css">
+  <link rel="stylesheet" href="/css/responsive.css">
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script type="module" src="/js/theme.js"></script>
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col lg:flex-row">
+
+  <!-- Role-Guard Secure Script (Executed immediately) -->
+  <script type="module" src="/js/role-guard.js"></script>
+
+  <!-- Sidebar (Injected dynamically) -->
+  <div id="sidebar-container" class="lg:flex-shrink-0"></div>
+
+  <!-- Loading Overlay -->
+  <div id="loading-overlay" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center z-50 transition-all">
+    <div class="bg-white p-6 rounded-2xl shadow-xl flex flex-col items-center gap-3">
+      <div class="w-10 h-10 border-4 border-slate-200 border-t-blue-600 rounded-full animate-spin"></div>
+      <p class="text-xs font-semibold text-slate-600">Loading Dashboard Data...</p>
+    </div>
+  </div>
+
+  <!-- Main Content Space -->
+  <main class="flex-1 p-6 lg:p-10 space-y-8 overflow-y-auto max-w-7xl mx-auto w-full">
+    
+    <!-- Top Greeting Header -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <div>
+        <h2 class="font-display font-extrabold text-2xl lg:text-3xl text-slate-800 tracking-tight">Executive Summary</h2>
+        <p class="text-xs text-slate-500">Real-time spatial distribution and severity metrics for accident incidents.</p>
+      </div>
+      <div class="px-4 py-2 bg-white border border-slate-100 rounded-xl flex items-center gap-2.5 shadow-sm text-xs font-semibold text-slate-600">
+        <span class="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse"></span>
+        GIS System Active (Firestore)
+      </div>
+    </div>
+
+    <!-- KPIs Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      <!-- Total Card -->
+      <div class="kpi-card bg-white p-5 rounded-2xl border border-slate-100/80 shadow-sm flex items-center gap-4">
+        <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center font-bold text-xl">
+          📊
+        </div>
+        <div>
+          <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider font-mono">Total Accidents</span>
+          <h3 id="kpi-total" class="text-2xl font-black text-slate-800 leading-none mt-1">0</h3>
+        </div>
+      </div>
+
+      <!-- Fatal Card -->
+      <div class="kpi-card bg-white p-5 rounded-2xl border border-slate-100/80 shadow-sm flex items-center gap-4">
+        <div class="w-12 h-12 bg-red-50 text-red-600 rounded-xl flex items-center justify-center font-bold text-xl">
+          🛑
+        </div>
+        <div>
+          <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider font-mono">Fatal Cases</span>
+          <h3 id="kpi-fatal" class="text-2xl font-black text-red-600 leading-none mt-1">0</h3>
+        </div>
+      </div>
+
+      <!-- Serious Card -->
+      <div class="kpi-card bg-white p-5 rounded-2xl border border-slate-100/80 shadow-sm flex items-center gap-4">
+        <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center font-bold text-xl">
+          ⚠️
+        </div>
+        <div>
+          <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider font-mono">Serious Cases</span>
+          <h3 id="kpi-serious" class="text-2xl font-black text-amber-500 leading-none mt-1">0</h3>
+        </div>
+      </div>
+
+      <!-- Minor Card -->
+      <div class="kpi-card bg-white p-5 rounded-2xl border border-slate-100/80 shadow-sm flex items-center gap-4">
+        <div class="w-12 h-12 bg-green-50 text-green-600 rounded-xl flex items-center justify-center font-bold text-xl">
+          🟢
+        </div>
+        <div>
+          <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider font-mono">Minor Cases</span>
+          <h3 id="kpi-minor" class="text-2xl font-black text-green-600 leading-none mt-1">0</h3>
+        </div>
+      </div>
+    </div>
+
+    <!-- Secondary Meta Stats Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+      <div class="p-5 bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-xs flex items-center justify-between">
+        <div class="space-y-1">
+          <span class="text-[9px] font-bold uppercase tracking-wider font-mono text-slate-400">Highest Accident District</span>
+          <h4 id="kpi-top-district" class="text-lg font-bold font-display text-slate-800 dark:text-white">Loading...</h4>
+        </div>
+        <span class="text-3xl">📍</span>
+      </div>
+
+      <div class="p-5 bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-xs flex items-center justify-between">
+        <div class="space-y-1">
+          <span class="text-[9px] font-bold uppercase tracking-wider font-mono text-slate-400">Highest Risk Vehicle</span>
+          <h4 id="kpi-top-vehicle" class="text-lg font-bold font-display text-slate-800 dark:text-white">Loading...</h4>
+        </div>
+        <span class="text-3xl">🏍️</span>
+      </div>
+    </div>
+
+    <!-- Chart & Table Grid -->
+    <div class="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
+      <!-- Chart Left -->
+      <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm xl:col-span-7 space-y-4">
+        <div class="flex justify-between items-center border-b border-slate-50 pb-3">
+          <h3 class="font-display font-bold text-base text-slate-800">Accident Distribution by District</h3>
+          <span class="text-xs text-slate-400">GIS Statistics</span>
+        </div>
+        <div class="h-80 relative">
+          <canvas id="admin-summary-chart"></canvas>
+        </div>
+      </div>
+
+      <!-- Recent Table Right -->
+      <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm xl:col-span-5 space-y-4 overflow-hidden">
+        <div class="flex justify-between items-center border-b border-slate-50 pb-3">
+          <h3 class="font-display font-bold text-base text-slate-800">Recent Accident Cases</h3>
+          <a href="manage-accidents.html" class="text-xs font-bold text-blue-600 hover:underline">Manage All →</a>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="border-b border-slate-100">
+                <th class="p-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Road Name</th>
+                <th class="p-4 text-xs font-bold text-slate-400 uppercase tracking-wider">District</th>
+                <th class="p-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Severity</th>
+              </tr>
+            </thead>
+            <tbody id="recent-accidents-tbody" class="divide-y divide-slate-50">
+              <tr>
+                <td colspan="3" class="p-4 text-center text-xs text-slate-400">Loading accident list...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Load Navigation and Admin JS modules -->
+  <script type="module" src="/js/navigation.js"></script>
+  <script type="module" src="/js/admin-dashboard.js"></script>
+
+</body>
+</html>
+

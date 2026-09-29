@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Road Improvement Recommendations - Hotspot Mapper</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/dashboard.css">
+  <link rel="stylesheet" href="/css/responsive.css">
+  <script type="module" src="/js/theme.js"></script>
+  <style>
+    /* Printing overrides for a pristine clean PDF report */
+    @media print {
+      body {
+        background: white !important;
+        color: black !important;
+      }
+      #sidebar-container, 
+      #backstage-controls,
+      #sample-preview-card,
+      #sample-quick-toolbar,
+      header,
+      button {
+        display: none !important;
+      }
+      main {
+        padding: 0 !important;
+        margin: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+      }
+      .print-shadow-none {
+        box-shadow: none !important;
+        border: none !important;
+        background: transparent !important;
+      }
+    }
+  </style>
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col lg:flex-row">
+
+  <!-- Role-Guard Security -->
+  <script type="module" src="/js/role-guard.js"></script>
+
+  <!-- Sidebar -->
+  <div id="sidebar-container" class="lg:flex-shrink-0"></div>
+
+  <!-- Main Content Area -->
+  <main class="flex-1 p-6 lg:p-10 space-y-8 overflow-y-auto max-w-5xl mx-auto w-full">
+    
+    <!-- Page Header (hidden in print) -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-100 pb-5">
+      <div>
+        <h2 class="font-display font-extrabold text-2xl lg:text-3xl text-slate-800 tracking-tight">Road Improvement Recommendations</h2>
+        <p class="text-xs text-slate-500">AI-powered road improvement suggestions & engineering mitigation strategies to prevent accidents.</p>
+      </div>
+      
+      <!-- Actions -->
+      <div id="backstage-controls" class="flex flex-wrap gap-2.5">
+        <button id="print-report-btn" class="px-4 py-2.5 bg-slate-950 dark:bg-white hover:bg-slate-900 dark:hover:bg-slate-100 text-white dark:text-slate-900 text-xs font-bold rounded-xl transition-all cursor-pointer shadow-xs flex items-center gap-1.5">
+          <span>🖨️ Download / Print Audit</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Latest Sample Report / Benchmark Preview Module (Collapsible / Highlight Card) -->
+    <div id="sample-preview-card" class="bg-white dark:bg-slate-900 text-slate-800 dark:text-white p-6 sm:p-7 rounded-3xl shadow-xs space-y-5 border border-slate-200 dark:border-slate-800">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-4">
+        <div class="flex items-center gap-3">
+          <span class="p-2.5 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 text-xl border border-blue-200/60 dark:border-blue-800/40">🛣️</span>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="px-2 py-0.5 rounded-md bg-red-50 dark:bg-red-950/60 text-red-600 dark:text-red-400 font-mono text-[10px] font-bold uppercase tracking-wider border border-red-200 dark:border-red-900/50">Benchmark Audit</span>
+              <span class="text-xs text-slate-400">Latest Sample Report Preview</span>
+            </div>
+            <h3 class="text-lg font-bold tracking-tight text-slate-900 dark:text-white mt-0.5">Target Location: Federal Highway / KM 14.2 (High-Risk Hotspot)</h3>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="quick-load-sample-btn" class="px-3.5 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-xl shadow-xs transition-all cursor-pointer flex items-center gap-1.5">
+            <span>🖨️ Print Audit Details</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Key Metrics Grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700/60 rounded-2xl p-4">
+          <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider font-mono">Total Accidents (3-Year)</p>
+          <div class="flex items-baseline gap-2 mt-1">
+            <span class="text-2xl font-extrabold text-slate-900 dark:text-white">48 Cases</span>
+            <span class="text-[11px] font-bold text-red-600 dark:text-red-400">12 Fatalities</span>
+          </div>
+          <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-1">Concentrated along KM 14.0 - KM 14.6 interchange</p>
+        </div>
+
+        <div class="bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700/60 rounded-2xl p-4">
+          <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider font-mono">Nighttime Ratio</p>
+          <div class="flex items-baseline gap-2 mt-1">
+            <span class="text-2xl font-extrabold text-amber-600 dark:text-amber-400">62.5%</span>
+            <span class="text-[11px] text-slate-500 dark:text-slate-300">10:00 PM – 4:00 AM</span>
+          </div>
+          <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-1">Severe lack of illumination on sharp entry curve</p>
+        </div>
+
+        <div class="bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700/60 rounded-2xl p-4">
+          <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider font-mono">Vulnerable Users (VRU)</p>
+          <div class="flex items-baseline gap-2 mt-1">
+            <span class="text-2xl font-extrabold text-indigo-600 dark:text-indigo-300">71.0%</span>
+            <span class="text-[11px] text-slate-500 dark:text-slate-300">Motorcycles / Pedestrians</span>
+          </div>
+          <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-1">T-bone collisions and side-swipes during lane mergers</p>
+        </div>
+      </div>
+
+      <!-- Prioritized Interventions Table -->
+      <div class="bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700/60 rounded-2xl p-4 space-y-3">
+        <h4 class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider font-mono">Prioritized Engineering Interventions</h4>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead>
+              <tr class="text-slate-400 border-b border-slate-200 dark:border-slate-700/60 text-[11px] uppercase font-mono">
+                <th class="pb-2">Action Item</th>
+                <th class="pb-2">Priority</th>
+                <th class="pb-2">Responsible Agency</th>
+                <th class="pb-2">Expected Safety Outcome</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 dark:divide-slate-700/40 text-slate-700 dark:text-slate-200">
+              <tr>
+                <td class="py-2.5 font-medium text-slate-900 dark:text-white">Install High-Friction Anti-Skid Surfacing & Chevron Reflectors</td>
+                <td class="py-2.5"><span class="px-2 py-0.5 rounded-full bg-red-100 dark:bg-red-950/60 text-red-700 dark:text-red-300 font-bold text-[10px]">High</span></td>
+                <td class="py-2.5 text-slate-500 dark:text-slate-300">JKR (Public Works)</td>
+                <td class="py-2.5 text-slate-500 dark:text-slate-300">Reduces wet-weather loss of control by 45%</td>
+              </tr>
+              <tr>
+                <td class="py-2.5 font-medium text-slate-900 dark:text-white">Deploy Dedicated Motorcycle Buffer Zone & Delineators</td>
+                <td class="py-2.5"><span class="px-2 py-0.5 rounded-full bg-red-100 dark:bg-red-950/60 text-red-700 dark:text-red-300 font-bold text-[10px]">High</span></td>
+                <td class="py-2.5 text-slate-500 dark:text-slate-300">JKR / PBT Subang Jaya</td>
+                <td class="py-2.5 text-slate-500 dark:text-slate-300">Prevents heavy vehicle sideswipes during peak congestion</td>
+              </tr>
+              <tr>
+                <td class="py-2.5 font-medium text-slate-900 dark:text-white">Upgrade High-Mast LED Lighting & Solar Hazard Warning Signs</td>
+                <td class="py-2.5"><span class="px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 font-bold text-[10px]">Medium</span></td>
+                <td class="py-2.5 text-slate-500 dark:text-slate-300">PBT / LLM Highway Auth</td>
+                <td class="py-2.5 text-slate-500 dark:text-slate-300">Increases nighttime curve visibility by 60%</td>
+              </tr>
+              <tr>
+                <td class="py-2.5 font-medium text-slate-900 dark:text-white">Deploy Automated Speed Enforcement (AES) Camera Warning</td>
+                <td class="py-2.5"><span class="px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 font-bold text-[10px]">Medium</span></td>
+                <td class="py-2.5 text-slate-500 dark:text-slate-300">JPJ / PDRM Traffic</td>
+                <td class="py-2.5 text-slate-500 dark:text-slate-300">Enforces 80 km/h speed threshold approaching junction</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Load Scripts -->
+  <script type="module" src="/js/navigation.js"></script>
+  <script type="module" src="/js/ai-report.js"></script>
+</body>
+</html>
+

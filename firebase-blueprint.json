@@ -1,0 +1,42 @@
+{
+  "entities": {
+    "Accident": {
+      "title": "Accident",
+      "description": "Record of a traffic accident",
+      "type": "object",
+      "properties": {
+        "latitude": { "type": "number", "description": "Latitude of the accident site" },
+        "longitude": { "type": "number", "description": "Longitude of the accident site" },
+        "tarikh": { "type": "string", "format": "date", "description": "Date of the accident (YYYY-MM-DD)" },
+        "masa": { "type": "string", "description": "Time of the accident (HH:MM)" },
+        "tahapKeterukan": { "type": "string", "enum": ["Fatal", "Serious", "Minor"], "description": "Severity classification" },
+        "jenisKenderaan": { "type": "string", "description": "Type of vehicle involved" },
+        "namaJalan": { "type": "string", "description": "Street name where it occurred" },
+        "daerah": { "type": "string", "description": "District name" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Server creation timestamp" },
+        "createdBy": { "type": "string", "description": "UID of the admin who logged the entry" }
+      },
+      "required": ["latitude", "longitude", "tarikh", "masa", "tahapKeterukan", "jenisKenderaan", "namaJalan", "daerah", "createdAt", "createdBy"]
+    },
+    "Admin": {
+      "title": "Admin",
+      "description": "System administrator account status",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string", "format": "email", "description": "Administrator email address" },
+        "role": { "type": "string", "enum": ["Admin"], "description": "Access privilege" }
+      },
+      "required": ["email", "role"]
+    }
+  },
+  "firestore": {
+    "accidents/{accidentId}": {
+      "schema": "Accident",
+      "description": "Traffic accident records"
+    },
+    "admins/{adminId}": {
+      "schema": "Admin",
+      "description": "Approved administrators for backend write actions"
+    }
+  }
+}

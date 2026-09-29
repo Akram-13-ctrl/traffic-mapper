@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Users - Hotspot Mapper</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/dashboard.css">
+  <link rel="stylesheet" href="/css/responsive.css">
+  <script type="module" src="/js/theme.js"></script>
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col lg:flex-row">
+
+  <!-- Security -->
+  <script type="module" src="/js/role-guard.js"></script>
+
+  <!-- Sidebar -->
+  <div id="sidebar-container" class="lg:flex-shrink-0"></div>
+
+  <!-- Loading Overlay -->
+  <div id="loading-overlay" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center z-50 transition-all">
+    <div class="bg-white p-6 rounded-2xl shadow-xl flex flex-col items-center gap-3">
+      <div class="w-10 h-10 border-4 border-slate-200 border-t-blue-600 rounded-full animate-spin"></div>
+      <p class="text-xs font-semibold text-slate-600">Updating User List...</p>
+    </div>
+  </div>
+
+  <!-- Main WorkSpace -->
+  <main class="flex-1 p-6 lg:p-10 space-y-8 overflow-y-auto max-w-7xl mx-auto w-full">
+    
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <div>
+        <h2 class="font-display font-extrabold text-2xl lg:text-3xl text-slate-800 tracking-tight">Manage System Users</h2>
+        <p class="text-xs text-slate-500">Control membership access, change roles (RBAC), and delete user accounts.</p>
+      </div>
+    </div>
+
+    <!-- Search bar -->
+    <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-xs max-w-md">
+      <div class="space-y-1">
+        <label for="search-user-input" class="text-[11px] font-bold text-slate-400 uppercase tracking-wider font-mono font-bold">Search Name / Email</label>
+        <input type="text" id="search-user-input" placeholder="Enter name or email..." class="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-200 focus:outline-none focus:border-slate-800 bg-slate-50/50">
+      </div>
+    </div>
+
+    <!-- Users Table Card -->
+    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead class="bg-slate-50/60 border-b border-slate-100 text-xs font-bold text-slate-400 uppercase tracking-wider">
+            <tr>
+              <th class="p-4">Full Name</th>
+              <th class="p-4">Email Address</th>
+              <th class="p-4">Role</th>
+              <th class="p-4">Registration Date</th>
+              <th class="p-4 text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="users-tbody" class="divide-y divide-slate-50 text-xs text-slate-600">
+            <tr>
+              <td colspan="5" class="p-6 text-center text-slate-400">Processing membership information...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Delete Confirmation Modal -->
+  <div id="delete-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl max-w-md w-full p-6 space-y-5 text-slate-800 dark:text-white">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 rounded-2xl bg-red-50 dark:bg-red-950/60 text-red-600 dark:text-red-400 flex items-center justify-center text-2xl shrink-0 border border-red-200 dark:border-red-900">
+          🗑️
+        </div>
+        <div>
+          <h3 class="font-display font-bold text-lg text-slate-900 dark:text-white">Delete User Account</h3>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Permanently revoke account access</p>
+        </div>
+      </div>
+
+      <div class="bg-slate-50 dark:bg-slate-800/60 p-4 rounded-2xl border border-slate-100 dark:border-slate-700/60 space-y-2 text-xs">
+        <p class="text-slate-600 dark:text-slate-300">Are you sure you want to permanently delete this user account?</p>
+        <div class="p-3 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 space-y-0.5 font-mono text-xs">
+          <p id="delete-modal-user-name" class="font-bold text-slate-900 dark:text-white">User Name</p>
+          <p id="delete-modal-user-email" class="text-slate-500 dark:text-slate-400 text-[11px]">email@example.com</p>
+        </div>
+        <p class="text-red-500 font-medium text-[11px]">⚠️ This action cannot be undone and will immediately revoke login access.</p>
+      </div>
+
+      <input type="hidden" id="delete-modal-uid">
+      <input type="hidden" id="delete-modal-email">
+
+      <div class="flex items-center justify-end gap-3 pt-2">
+        <button type="button" id="delete-modal-cancel-btn" class="px-4 py-2.5 text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all cursor-pointer">
+          Cancel
+        </button>
+        <button type="button" id="delete-modal-confirm-btn" class="px-5 py-2.5 text-xs font-bold text-white bg-red-600 hover:bg-red-700 active:bg-red-800 rounded-xl shadow-lg shadow-red-500/20 transition-all cursor-pointer flex items-center gap-1.5">
+          <span>Delete User</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Role Change Confirmation Modal -->
+  <div id="role-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl max-w-md w-full p-6 space-y-5 text-slate-800 dark:text-white">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center text-2xl shrink-0 border border-blue-200 dark:border-blue-900">
+          🔄
+        </div>
+        <div>
+          <h3 class="font-display font-bold text-lg text-slate-900 dark:text-white">Change User Role</h3>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Update role-based access control (RBAC)</p>
+        </div>
+      </div>
+
+      <div class="bg-slate-50 dark:bg-slate-800/60 p-4 rounded-2xl border border-slate-100 dark:border-slate-700/60 space-y-2 text-xs">
+        <p class="text-slate-600 dark:text-slate-300">Confirm changing the access permissions for:</p>
+        <div class="p-3 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 space-y-0.5 font-mono text-xs">
+          <p id="role-modal-user-name" class="font-bold text-slate-900 dark:text-white">User Name</p>
+          <p id="role-modal-user-email" class="text-slate-500 dark:text-slate-400 text-[11px]">email@example.com</p>
+        </div>
+        <p id="role-modal-target-desc" class="font-semibold text-blue-600 dark:text-blue-400 text-xs">New Role: ADMIN</p>
+      </div>
+
+      <input type="hidden" id="role-modal-uid">
+      <input type="hidden" id="role-modal-email">
+      <input type="hidden" id="role-modal-target-role">
+
+      <div class="flex items-center justify-end gap-3 pt-2">
+        <button type="button" id="role-modal-cancel-btn" class="px-4 py-2.5 text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all cursor-pointer">
+          Cancel
+        </button>
+        <button type="button" id="role-modal-confirm-btn" class="px-5 py-2.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 rounded-xl shadow-lg shadow-blue-500/20 transition-all cursor-pointer">
+          Confirm Change
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="user-toast" class="fixed top-5 right-5 z-50 hidden p-4 bg-slate-900 text-white text-xs font-semibold rounded-2xl shadow-xl border border-slate-800 flex items-center gap-2.5 transition-all">
+    <span id="toast-icon">✓</span>
+    <span id="toast-message">Action successful</span>
+  </div>
+
+  <!-- Load Scripts -->
+  <script type="module" src="/js/navigation.js"></script>
+  <script type="module">
+    import { getUsersList, updateUserRole, deleteUserAccount, getCurrentUser } from "/js/auth.js";
+
+    let usersList = [];
+    const loadingOverlay = document.getElementById("loading-overlay");
+
+    function showToast(message, isError = false) {
+      const toast = document.getElementById("user-toast");
+      const icon = document.getElementById("toast-icon");
+      const msg = document.getElementById("toast-message");
+      if (!toast) return;
+
+      icon.textContent = isError ? "⚠️" : "✓";
+      msg.textContent = message;
+      toast.className = `fixed top-5 right-5 z-50 p-4 text-xs font-semibold rounded-2xl shadow-2xl border flex items-center gap-2.5 transition-all ${
+        isError ? 'bg-red-900 text-red-100 border-red-700' : 'bg-slate-900 text-white border-slate-700'
+      }`;
+      toast.classList.remove("hidden");
+
+      setTimeout(() => {
+        toast.classList.add("hidden");
+      }, 3500);
+    }
+
+    async function loadUsers() {
+      loadingOverlay.classList.remove("hidden");
+      try {
+        usersList = await getUsersList();
+        renderUsers(usersList);
+      } catch (err) {
+        console.error("Failed to load users list:", err);
+        showToast("Failed to load users list.", true);
+      } finally {
+        loadingOverlay.classList.add("hidden");
+      }
+    }
+
+    function renderUsers(list) {
+      const tbody = document.getElementById("users-tbody");
+      if (list.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400">No registered users found.</td></tr>`;
+        return;
+      }
+
+      const currentUser = getCurrentUser();
+      const currentAdminEmail = (currentUser?.email || localStorage.getItem("gis_user_email") || "").toLowerCase().trim();
+      const currentAdminUid = currentUser?.uid || "";
+
+      tbody.innerHTML = list.map(u => {
+        const isAdmin = u.role === "admin";
+        const roleBadge = isAdmin 
+          ? `<span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-900 text-white border border-slate-900">🛡️ Admin</span>`
+          : `<span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-100">👤 User</span>`;
+
+        // Accurately check if this user row corresponds to the currently logged in admin session
+        const isSelf = Boolean(
+          (currentAdminUid && u.uid === currentAdminUid) ||
+          (currentAdminEmail && u.email && u.email.toLowerCase().trim() === currentAdminEmail)
+        );
+
+        const actionBtn = isAdmin
+          ? `<button class="role-btn text-xs font-bold text-blue-600 hover:underline cursor-pointer" data-uid="${u.uid}" data-email="${u.email}" data-name="${u.fullName}" data-target-role="user">Downgrade to User</button>`
+          : `<button class="role-btn text-xs font-bold text-purple-600 hover:underline cursor-pointer" data-uid="${u.uid}" data-email="${u.email}" data-name="${u.fullName}" data-target-role="admin">Upgrade to Admin</button>`;
+
+        const deleteBtn = isSelf 
+          ? `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">● Current Account (You)</span>`
+          : `<button class="delete-btn text-xs font-bold text-red-600 hover:text-red-700 hover:underline cursor-pointer" data-uid="${u.uid}" data-email="${u.email}" data-name="${u.fullName}">Delete</button>`;
+
+        return `
+          <tr class="hover:bg-slate-50/50 transition-all text-xs ${isSelf ? 'bg-emerald-50/20' : ''}">
+            <td class="p-4 font-semibold text-slate-800 flex items-center gap-2">
+              <span>${u.fullName}</span>
+              ${isSelf ? '<span class="px-1.5 py-0.5 text-[9px] font-bold font-mono bg-emerald-100 text-emerald-800 rounded">YOU</span>' : ''}
+            </td>
+            <td class="p-4 font-mono text-slate-500">${u.email}</td>
+            <td class="p-4">${roleBadge}</td>
+            <td class="p-4 text-slate-400">${u.createdAt ? u.createdAt.split("T")[0] : "2026-07-16"}</td>
+            <td class="p-4 text-right space-x-3">
+              ${isSelf ? "" : actionBtn}
+              ${deleteBtn}
+            </td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    // Modal elements
+    const deleteModal = document.getElementById("delete-modal");
+    const deleteCancelBtn = document.getElementById("delete-modal-cancel-btn");
+    const deleteConfirmBtn = document.getElementById("delete-modal-confirm-btn");
+
+    const roleModal = document.getElementById("role-modal");
+    const roleCancelBtn = document.getElementById("role-modal-cancel-btn");
+    const roleConfirmBtn = document.getElementById("role-modal-confirm-btn");
+
+    // Close Modals
+    function closeDeleteModal() {
+      deleteModal.classList.add("hidden");
+    }
+    function closeRoleModal() {
+      roleModal.classList.add("hidden");
+    }
+
+    deleteCancelBtn?.addEventListener("click", closeDeleteModal);
+    deleteModal?.addEventListener("click", (e) => {
+      if (e.target === deleteModal) closeDeleteModal();
+    });
+
+    roleCancelBtn?.addEventListener("click", closeRoleModal);
+    roleModal?.addEventListener("click", (e) => {
+      if (e.target === roleModal) closeRoleModal();
+    });
+
+    // Event Delegation on Table Body for Actions
+    document.getElementById("users-tbody")?.addEventListener("click", (e) => {
+      const delBtn = e.target.closest(".delete-btn");
+      if (delBtn) {
+        const uid = delBtn.getAttribute("data-uid");
+        const email = delBtn.getAttribute("data-email");
+        const name = delBtn.getAttribute("data-name");
+
+        document.getElementById("delete-modal-uid").value = uid;
+        document.getElementById("delete-modal-email").value = email;
+        document.getElementById("delete-modal-user-name").textContent = name;
+        document.getElementById("delete-modal-user-email").textContent = email;
+
+        deleteModal.classList.remove("hidden");
+        return;
+      }
+
+      const rBtn = e.target.closest(".role-btn");
+      if (rBtn) {
+        const uid = rBtn.getAttribute("data-uid");
+        const email = rBtn.getAttribute("data-email");
+        const name = rBtn.getAttribute("data-name");
+        const targetRole = rBtn.getAttribute("data-target-role");
+
+        document.getElementById("role-modal-uid").value = uid;
+        document.getElementById("role-modal-email").value = email;
+        document.getElementById("role-modal-target-role").value = targetRole;
+        document.getElementById("role-modal-user-name").textContent = name;
+        document.getElementById("role-modal-user-email").textContent = email;
+        document.getElementById("role-modal-target-desc").textContent = `New Role: ${targetRole.toUpperCase()}`;
+
+        roleModal.classList.remove("hidden");
+        return;
+      }
+    });
+
+    // Confirm Delete Click
+    deleteConfirmBtn?.addEventListener("click", async () => {
+      const uid = document.getElementById("delete-modal-uid").value;
+      const email = document.getElementById("delete-modal-email").value;
+      const name = document.getElementById("delete-modal-user-name").textContent;
+
+      deleteConfirmBtn.disabled = true;
+      deleteConfirmBtn.innerText = "Deleting...";
+
+      try {
+        await deleteUserAccount(uid, email);
+        closeDeleteModal();
+        showToast(`User account "${name}" was successfully deleted.`);
+        await loadUsers();
+      } catch (err) {
+        console.error("Error deleting user:", err);
+        showToast(err.message || "Failed to delete user.", true);
+      } finally {
+        deleteConfirmBtn.disabled = false;
+        deleteConfirmBtn.innerText = "Delete User";
+      }
+    });
+
+    // Confirm Role Change Click
+    roleConfirmBtn?.addEventListener("click", async () => {
+      const uid = document.getElementById("role-modal-uid").value;
+      const email = document.getElementById("role-modal-email").value;
+      const targetRole = document.getElementById("role-modal-target-role").value;
+      const name = document.getElementById("role-modal-user-name").textContent;
+
+      roleConfirmBtn.disabled = true;
+      roleConfirmBtn.innerText = "Updating...";
+
+      try {
+        await updateUserRole(uid, targetRole, email);
+        closeRoleModal();
+        showToast(`Updated role for "${name}" to ${targetRole.toUpperCase()}.`);
+        await loadUsers();
+      } catch (err) {
+        console.error("Error updating role:", err);
+        showToast(err.message || "Failed to update role.", true);
+      } finally {
+        roleConfirmBtn.disabled = false;
+        roleConfirmBtn.innerText = "Confirm Change";
+      }
+    });
+
+    // Filter Search
+    document.getElementById("search-user-input").addEventListener("input", (e) => {
+      const search = e.target.value.toLowerCase();
+      const filtered = usersList.filter(u => 
+        (u.fullName || "").toLowerCase().includes(search) || 
+        (u.email || "").toLowerCase().includes(search)
+      );
+      renderUsers(filtered);
+    });
+
+    // Synchronize if users updated externally
+    window.addEventListener("users_updated", loadUsers);
+
+    // Initial Trigger
+    loadUsers();
+  </script>
+</body>
+</html>
+

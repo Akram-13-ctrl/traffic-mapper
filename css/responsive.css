@@ -1,0 +1,36 @@
+/* Custom Responsive and Accessibility Tweaks */
+
+/* Enforce touch-target sizing for mobile */
+@media (max-width: 640px) {
+  button, 
+  select, 
+  input, 
+  a {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+  
+  .form-input-mobile {
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+  }
+}
+
+/* Print optimizations for reports */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  body {
+    background-color: white !important;
+    color: black !important;
+  }
+  
+  .print-card {
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+  }
+}

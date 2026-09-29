@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Registration - Hotspot Mapper</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/auth.css">
+  <script type="module" src="/js/theme.js"></script>
+  <script type="module" src="/js/navigation.js"></script>
+</head>
+<body class="auth-bg min-h-screen flex flex-col items-center justify-center p-6 relative">
+
+  <!-- Top bar theme toggle -->
+  <div class="absolute top-6 right-6">
+    <button class="theme-toggle-btn flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-700 bg-white/80 dark:bg-slate-800/80 backdrop-blur-md hover:bg-slate-100 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm transition-all cursor-pointer">
+      <span class="theme-icon text-sm">🌙</span>
+      <span class="theme-label hidden sm:inline">Dark Mode</span>
+    </button>
+  </div>
+
+  <div class="auth-card bg-white p-8 rounded-3xl w-full max-w-md">
+    <!-- Header -->
+    <div class="text-center space-y-2.5 mb-8">
+      <div class="w-12 h-12 bg-blue-500 rounded-2xl flex items-center justify-center text-white text-xl mx-auto shadow-md">
+        📝
+      </div>
+      <h2 class="font-display font-extrabold text-2xl text-slate-800 tracking-tight">Create Account</h2>
+      <p class="text-xs text-slate-400">Register as a public user to view hotspot maps & safety statistics</p>
+    </div>
+
+    <!-- Alert Box -->
+    <div id="error-message" class="hidden p-4 mb-5 rounded-xl bg-red-50 text-xs font-semibold text-red-600 border border-red-100"></div>
+
+    <!-- Form -->
+    <form id="register-form" class="space-y-4">
+      <div class="space-y-1">
+        <label for="fullName" class="text-xs font-bold text-slate-700">Full Name</label>
+        <input type="text" id="fullName" required placeholder="John Doe" class="w-full px-4 py-3 text-sm rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 transition-all">
+      </div>
+
+      <div class="space-y-1">
+        <label for="email" class="text-xs font-bold text-slate-700">Email Address</label>
+        <input type="email" id="email" required placeholder="john@example.com" class="w-full px-4 py-3 text-sm rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 transition-all">
+      </div>
+      
+      <div class="space-y-1">
+        <label for="password" class="text-xs font-bold text-slate-700">Password</label>
+        <input type="password" id="password" required placeholder="Minimum 6 characters" class="w-full px-4 py-3 text-sm rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 transition-all">
+      </div>
+
+      <div class="space-y-1">
+        <label for="confirm-password" class="text-xs font-bold text-slate-700">Confirm Password</label>
+        <input type="password" id="confirm-password" required placeholder="Repeat password" class="w-full px-4 py-3 text-sm rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 transition-all">
+      </div>
+
+      <button type="submit" id="submit-btn" class="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-xl shadow-lg transition-all cursor-pointer">
+        Register Account
+      </button>
+    </form>
+
+    <!-- Footer links -->
+    <div class="mt-8 pt-6 border-t border-slate-50 text-center space-y-4">
+      <p class="text-xs text-slate-500">
+        Already have an account? <a href="user-login.html" class="text-blue-600 font-bold hover:underline">Log in here</a>
+      </p>
+      <a href="index.html" class="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-800 transition-all">
+        ← Return to Home Page
+      </a>
+    </div>
+  </div>
+
+  <script type="module">
+    import { registerUser } from "/js/auth.js";
+    
+    const form = document.getElementById("register-form");
+    const errorEl = document.getElementById("error-message");
+    const submitBtn = document.getElementById("submit-btn");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      errorEl.classList.add("hidden");
+
+      const fullName = document.getElementById("fullName").value;
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      const confirmPassword = document.getElementById("confirm-password").value;
+
+      if (password.length < 6) {
+        errorEl.innerText = "Password must be at least 6 characters long.";
+        errorEl.classList.remove("hidden");
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        errorEl.innerText = "Password and confirmation password do not match.";
+        errorEl.classList.remove("hidden");
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.innerText = "Creating account...";
+
+      try {
+        await registerUser(fullName, email, password);
+        alert("Registration successful! Please log in with your credentials.");
+        window.location.href = "user-login.html";
+      } catch (err) {
+        errorEl.innerText = err.message;
+        errorEl.classList.remove("hidden");
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerText = "Register Account";
+      }
+    });
+  </script>
+</body>
+</html>
+

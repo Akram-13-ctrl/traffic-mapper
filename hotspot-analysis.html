@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hotspot Analysis - Hotspot Mapper</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/dashboard.css">
+  <link rel="stylesheet" href="/css/responsive.css">
+  <script type="module" src="/js/theme.js"></script>
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col lg:flex-row">
+
+  <!-- Security -->
+  <script type="module" src="/js/role-guard.js"></script>
+
+  <!-- Sidebar -->
+  <div id="sidebar-container" class="lg:flex-shrink-0"></div>
+
+  <!-- Loading Overlay -->
+  <div id="loading-overlay" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center z-50 transition-all">
+    <div class="bg-white p-6 rounded-2xl shadow-xl flex flex-col items-center gap-3">
+      <div class="w-10 h-10 border-4 border-slate-200 border-t-blue-600 rounded-full animate-spin"></div>
+      <p class="text-xs font-semibold text-slate-600">Analyzing Road Spatial Density...</p>
+    </div>
+  </div>
+
+  <!-- Main Workspace -->
+  <main class="flex-1 p-6 lg:p-10 space-y-8 overflow-y-auto max-w-7xl mx-auto w-full">
+    
+    <!-- Page Header -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <div>
+        <h2 class="font-display font-extrabold text-2xl lg:text-3xl text-slate-800 tracking-tight">Accident Hotspot Analysis</h2>
+        <p class="text-xs text-slate-500">Identification of dangerous zones and road risk classification across regional transit routes.</p>
+      </div>
+    </div>
+
+    <!-- Overview Route Count Cards (Red, Yellow, Green Route Counts) -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+      <!-- High Risk Red Zone -->
+      <div class="p-5 bg-red-50 border border-red-100 rounded-2xl flex items-center gap-4">
+        <div class="w-12 h-12 bg-red-500 text-white rounded-xl flex items-center justify-center font-bold text-xl shadow-md">
+          🔴
+        </div>
+        <div>
+          <span class="text-[10px] font-bold text-red-600 uppercase tracking-wider font-mono">Red Zone (Dangerous Zone)</span>
+          <h3 id="stat-high-risk" class="text-2xl font-black text-slate-800 leading-none mt-1">0 Routes</h3>
+          <p class="text-[11px] text-red-500 mt-1">High accident frequency & fatal risk</p>
+        </div>
+      </div>
+
+      <!-- Medium Risk Yellow Zone -->
+      <div class="p-5 bg-amber-50 border border-amber-100 rounded-2xl flex items-center gap-4">
+        <div class="w-12 h-12 bg-amber-400 text-white rounded-xl flex items-center justify-center font-bold text-xl shadow-md">
+          🟡
+        </div>
+        <div>
+          <span class="text-[10px] font-bold text-amber-700 uppercase tracking-wider font-mono">Yellow Zone (Moderate Risk)</span>
+          <h3 id="stat-medium-risk" class="text-2xl font-black text-slate-800 leading-none mt-1">0 Routes</h3>
+          <p class="text-[11px] text-amber-600 mt-1">Moderate collision frequency</p>
+        </div>
+      </div>
+
+      <!-- Low Risk Green Zone -->
+      <div class="p-5 bg-green-50 border border-green-100 rounded-2xl flex items-center gap-4">
+        <div class="w-12 h-12 bg-green-500 text-white rounded-xl flex items-center justify-center font-bold text-xl shadow-md">
+          🟢
+        </div>
+        <div>
+          <span class="text-[10px] font-bold text-green-700 uppercase tracking-wider font-mono">Green Zone (Safe Zone)</span>
+          <h3 id="stat-low-risk" class="text-2xl font-black text-slate-800 leading-none mt-1">0 Routes</h3>
+          <p class="text-[11px] text-green-600 mt-1">Low accident incident rate</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Grid: Dangerous Zones Summary & Full Road List -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      
+      <!-- Classification Table (Left Column) -->
+      <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm lg:col-span-8 space-y-4">
+        <div class="flex justify-between items-center border-b border-slate-50 pb-3">
+          <h3 class="font-display font-bold text-base text-slate-800">Road Risk Sectors & Hotspots</h3>
+          <span class="text-xs text-slate-400 font-mono">Order: High to Low Severity</span>
+        </div>
+        
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="border-b border-slate-100 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                <th class="p-4">Road Name</th>
+                <th class="p-4">District</th>
+                <th class="p-4">Total Cases</th>
+                <th class="p-4">Risk Score</th>
+                <th class="p-4">Zone Classification</th>
+              </tr>
+            </thead>
+            <tbody id="risk-sectors-tbody" class="divide-y divide-slate-50 text-xs text-slate-600">
+              <tr>
+                <td colspan="5" class="p-6 text-center text-slate-400">Processing spatial density analysis...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Dangerous Zones Summary Box (Right Column) -->
+      <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm lg:col-span-4 space-y-5">
+        <div class="border-b border-slate-50 pb-3 flex items-center justify-between">
+          <h3 class="font-display font-bold text-base text-slate-800">⚠️ Dangerous Zones Summary</h3>
+          <span class="px-2 py-0.5 rounded-full bg-red-100 text-red-700 text-[10px] font-bold">RED HOTSPOTS</span>
+        </div>
+
+        <p class="text-xs text-slate-500 leading-relaxed">
+          The following road locations have been classified as <strong>Dangerous Zones (Zon Merah)</strong> due to high collision frequency and severe casualty rates:
+        </p>
+
+        <div id="dangerous-zones-list" class="space-y-3">
+          <div class="p-4 bg-slate-50 rounded-xl text-center text-xs text-slate-400">
+            Calculating high-risk dangerous zones...
+          </div>
+        </div>
+
+        <div class="p-4 bg-red-50/70 border border-red-100 rounded-xl space-y-1.5 text-xs text-red-950">
+          <strong class="font-bold block text-red-800">Route Color Guide:</strong>
+          <ul class="space-y-1 text-[11px] text-red-900">
+            <li>• <strong class="text-red-700">Red Route (Zon Merah):</strong> Dangerous zone requiring immediate police enforcement & engineering mitigation.</li>
+            <li>• <strong class="text-amber-700">Yellow Route (Zon Kuning):</strong> Moderate risk zone needing caution signage.</li>
+            <li>• <strong class="text-green-700">Green Route (Zon Hijau):</strong> Safe route with minimal incidents.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Load Scripts -->
+  <script type="module" src="/js/navigation.js"></script>
+  <script type="module">
+    import { getAccidents } from "/js/accidents.js";
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      const loadingOverlay = document.getElementById("loading-overlay");
+      try {
+        const accidents = await getAccidents();
+        processHotspotAnalysis(accidents);
+      } catch (err) {
+        console.error("Failed to generate hotspot analysis:", err);
+      } finally {
+        loadingOverlay.classList.add("hidden");
+      }
+    });
+
+    function processHotspotAnalysis(accidents) {
+      // 1. Group accidents by road name + district
+      const roadMap = {};
+      accidents.forEach(a => {
+        const key = `${a.namaJalan}|${a.daerah}`;
+        if (!roadMap[key]) {
+          roadMap[key] = {
+            namaJalan: a.namaJalan,
+            daerah: a.daerah,
+            count: 0,
+            fatal: 0,
+            serious: 0,
+            minor: 0
+          };
+        }
+        roadMap[key].count++;
+        if (a.tahapKeterukan === "Fatal") roadMap[key].fatal++;
+        else if (a.tahapKeterukan === "Serious") roadMap[key].serious++;
+        else roadMap[key].minor++;
+      });
+
+      // 2. Convert to list and calculate risk score
+      const list = Object.values(roadMap).map(road => {
+        const score = parseFloat((road.count * 1.2 + road.fatal * 1.8 + road.serious * 0.8).toFixed(1));
+        let classification = "Low";
+        if (score >= 5.0) {
+          classification = "Red / Dangerous Zone";
+        } else if (score >= 2.5) {
+          classification = "Yellow / Moderate Zone";
+        } else {
+          classification = "Green / Safe Zone";
+        }
+        return { ...road, score, classification };
+      });
+
+      // Sort by risk score descending
+      list.sort((a, b) => b.score - a.score);
+
+      // 3. Count classifications for Red, Yellow, Green routes
+      let redCount = 0;
+      let yellowCount = 0;
+      let greenCount = 0;
+
+      list.forEach(r => {
+        if (r.classification.includes("Red")) redCount++;
+        else if (r.classification.includes("Yellow")) yellowCount++;
+        else greenCount++;
+      });
+
+      document.getElementById("stat-high-risk").innerText = `${redCount} ${redCount === 1 ? 'Route' : 'Routes'}`;
+      document.getElementById("stat-medium-risk").innerText = `${yellowCount} ${yellowCount === 1 ? 'Route' : 'Routes'}`;
+      document.getElementById("stat-low-risk").innerText = `${greenCount} ${greenCount === 1 ? 'Route' : 'Routes'}`;
+
+      // 4. Render Dangerous Zones List (Right Box)
+      const dangerousZonesList = document.getElementById("dangerous-zones-list");
+      const redZones = list.filter(r => r.classification.includes("Red"));
+      
+      if (redZones.length === 0) {
+        dangerousZonesList.innerHTML = `<div class="p-3 bg-green-50 text-green-800 rounded-xl text-xs font-medium">No severe dangerous red zones detected currently.</div>`;
+      } else {
+        dangerousZonesList.innerHTML = redZones.map(zone => `
+          <div class="p-3.5 bg-red-50/60 border border-red-100 rounded-xl text-xs flex items-start justify-between gap-2">
+            <div>
+              <strong class="text-slate-800 block font-bold">${zone.namaJalan}</strong>
+              <span class="text-[10px] text-slate-500">${zone.daerah} District • ${zone.count} accidents (${zone.fatal} fatal)</span>
+            </div>
+            <span class="px-2 py-0.5 rounded-full bg-red-600 text-white font-mono text-[10px] font-bold">
+              Score: ${zone.score}
+            </span>
+          </div>
+        `).join("");
+      }
+
+      // 5. Render Main Risk Table
+      const tbody = document.getElementById("risk-sectors-tbody");
+      if (list.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400">No accident data detected.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = list.map(road => {
+        let statusBadge = "";
+        if (road.classification.includes("Red")) {
+          statusBadge = `<span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold bg-red-100 text-red-700 border border-red-200">🔴 Dangerous Zone (Red Route)</span>`;
+        } else if (road.classification.includes("Yellow")) {
+          statusBadge = `<span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-100 text-amber-700 border border-amber-200">🟡 Moderate Risk (Yellow Route)</span>`;
+        } else {
+          statusBadge = `<span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold bg-green-100 text-green-700 border border-green-200">🟢 Safe Zone (Green Route)</span>`;
+        }
+
+        return `
+          <tr class="hover:bg-slate-50 transition-colors">
+            <td class="p-4 font-semibold text-slate-800">${road.namaJalan}</td>
+            <td class="p-4 text-slate-600">${road.daerah}</td>
+            <td class="p-4 font-mono font-medium text-slate-800">${road.count} ${road.count === 1 ? 'case' : 'cases'}</td>
+            <td class="p-4 font-mono font-black text-blue-600">${road.score}</td>
+            <td class="p-4">${statusBadge}</td>
+          </tr>
+        `;
+      }).join("");
+    }
+  </script>
+</body>
+</html>
+

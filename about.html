@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>System Overview - Hotspot Mapper</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/dashboard.css">
+  <link rel="stylesheet" href="/css/responsive.css">
+  <script type="module" src="/js/theme.js"></script>
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col lg:flex-row">
+
+  <!-- Security -->
+  <script type="module" src="/js/role-guard.js"></script>
+
+  <!-- Sidebar -->
+  <div id="sidebar-container" class="lg:flex-shrink-0"></div>
+
+  <!-- Main WorkSpace -->
+  <main class="flex-1 p-6 lg:p-10 space-y-8 overflow-y-auto max-w-4xl mx-auto w-full">
+    
+    <!-- Page Header -->
+    <div class="border-b border-slate-100 pb-5">
+      <h2 class="font-display font-extrabold text-2xl lg:text-3xl text-slate-800 tracking-tight">System Overview</h2>
+      <p class="text-xs text-slate-500">System architecture overview, core objectives, and technical documentation.</p>
+    </div>
+
+    <!-- Main Content layout -->
+    <div class="bg-white p-8 md:p-10 rounded-3xl border border-slate-100 shadow-sm space-y-8">
+      
+      <!-- Intro Section -->
+      <div class="space-y-3">
+        <h3 class="font-display font-extrabold text-lg text-slate-800">1. System Overview</h3>
+        <p class="text-xs text-slate-600 leading-relaxed text-justify">
+          The <strong>Traffic Accident Hotspot Mapper</strong> is a specialized road safety platform. Traffic accidents represent a critical public safety challenge. By leveraging Geographic Information Systems (GIS) and Artificial Intelligence (AI) analytics, this system assists authorities and the public in identifying high-risk accident hotspots, evaluating risk factors, and formulating evidence-based road safety mitigations.
+        </p>
+      </div>
+
+      <!-- Objectives Section -->
+      <div class="space-y-3">
+        <h3 class="font-display font-extrabold text-lg text-slate-800">2. System Objectives</h3>
+        <ul class="space-y-3.5 list-decimal ml-5 text-xs text-slate-600 leading-relaxed">
+          <li>Provide a secure, dynamic GIS database to store and manage accident location coordinates (latitude, longitude) using <strong>Firebase Firestore</strong>.</li>
+          <li>Enable spatial density visualization and interactive hotspot mapping using <strong>Leaflet.js</strong> to display real-time road accident distributions.</li>
+          <li>Integrate <strong>Google Gemini API</strong> intelligence to summarize spatio-temporal risk factors, analyze dominant severity patterns, and generate actionable road improvement suggestions.</li>
+        </ul>
+      </div>
+
+      <!-- Tech Stack Bento Info -->
+      <div class="space-y-4">
+        <h3 class="font-display font-extrabold text-lg text-slate-800">3. Technology Architecture</h3>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <!-- Item 1 -->
+          <div class="p-4 bg-slate-50 rounded-xl border border-slate-100 space-y-1">
+            <h4 class="font-bold text-xs text-slate-800">Frontend UI Engine</h4>
+            <p class="text-[11px] text-slate-500">HTML5, Tailwind CSS, Google Fonts, Responsive Media Queries.</p>
+          </div>
+          <!-- Item 2 -->
+          <div class="p-4 bg-slate-50 rounded-xl border border-slate-100 space-y-1">
+            <h4 class="font-bold text-xs text-slate-800">Map Rendering & GIS</h4>
+            <p class="text-[11px] text-slate-500">Leaflet.js, Heatmap Layer, Pulse Markers, Custom Spatial Filtering.</p>
+          </div>
+          <!-- Item 3 -->
+          <div class="p-4 bg-slate-50 rounded-xl border border-slate-100 space-y-1">
+            <h4 class="font-bold text-xs text-slate-800">Database & Auth (Cloud Sync)</h4>
+            <p class="text-[11px] text-slate-500">Firebase Firestore (NoSQL) & Firebase Auth (RBAC Session Guard).</p>
+          </div>
+          <!-- Item 4 -->
+          <div class="p-4 bg-slate-50 rounded-xl border border-slate-100 space-y-1">
+            <h4 class="font-bold text-xs text-slate-800">Artificial Intelligence Engine</h4>
+            <p class="text-[11px] text-slate-500">Node.js Express proxy with Google Gen AI SDK model 'gemini-2.5-flash'.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Load script -->
+  <script type="module" src="/js/navigation.js"></script>
+</body>
+</html>
+

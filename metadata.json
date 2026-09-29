@@ -1,0 +1,6 @@
+{
+  "name": "Traffic Accident Hotspot Mapper",
+  "description": "A GIS web system for mapping road accident hotspot zones and generating AI-powered data analytics to improve road safety.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Account & Management - Hotspot Mapper</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/dashboard.css">
+  <link rel="stylesheet" href="/css/responsive.css">
+  <script type="module" src="/js/theme.js"></script>
+</head>
+<body class="bg-slate-50 dark:bg-slate-950 min-h-screen flex flex-col lg:flex-row text-slate-800 dark:text-slate-100 transition-colors">
+
+  <!-- Security: Admin Role Guard -->
+  <script type="module" src="/js/role-guard.js"></script>
+
+  <!-- Sidebar -->
+  <div id="sidebar-container" class="lg:flex-shrink-0"></div>
+
+  <!-- Main WorkSpace -->
+  <main class="flex-1 p-5 sm:p-8 lg:p-10 space-y-8 overflow-y-auto w-full max-w-7xl mx-auto">
+    
+    <!-- Top Header -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-200/80 dark:border-slate-800 pb-5">
+      <div>
+        <div class="flex items-center gap-2.5">
+          <span class="p-2 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 text-lg border border-blue-200/60 dark:border-blue-800/40">👤</span>
+          <h2 class="font-display font-extrabold text-2xl lg:text-3xl text-slate-900 dark:text-white tracking-tight">Admin Account & Team Management</h2>
+        </div>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Manage your administrative credentials and provision verified officer accounts for road safety agencies.</p>
+      </div>
+    </div>
+
+    <!-- Dual Column Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      
+      <!-- Left Column: Current Admin Profile (5 Cols) -->
+      <div class="lg:col-span-5 space-y-6">
+        <div class="bg-white dark:bg-slate-900 p-6 sm:p-7 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-6">
+          
+          <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center font-bold text-xl shadow-md shadow-blue-500/20">
+                <span id="profile-avatar-initials">AD</span>
+              </div>
+              <div>
+                <h3 id="profile-display-name" class="font-bold text-sm text-slate-900 dark:text-white">System Administrator</h3>
+                <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300">OFFICIAL ADMINISTRATOR</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Edit Profile Form -->
+          <form id="edit-profile-form" class="space-y-4">
+            <div class="space-y-1">
+              <label for="profile-name-input" class="text-xs font-bold text-slate-700 dark:text-slate-200">Full Name</label>
+              <input type="text" id="profile-name-input" required class="w-full px-3.5 py-2.5 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:border-blue-500 text-slate-800 dark:text-white">
+            </div>
+
+            <div class="space-y-1">
+              <label for="profile-email-input" class="text-xs font-bold text-slate-700 dark:text-slate-200">Official Email</label>
+              <input type="email" id="profile-email-input" readonly disabled class="w-full px-3.5 py-2.5 text-xs bg-slate-100 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-500 cursor-not-allowed font-mono">
+              <span class="text-[10px] text-slate-400">Primary administrative authentication email cannot be modified.</span>
+            </div>
+
+            <div class="space-y-1">
+              <label for="profile-agency-input" class="text-xs font-bold text-slate-700 dark:text-slate-200">Agency / Department</label>
+              <select id="profile-agency-input" class="w-full px-3.5 py-2.5 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none text-slate-800 dark:text-white">
+                <option value="JKR (Public Works Department)">JKR (Public Works Department)</option>
+                <option value="PDRM (Traffic Investigation & Enforcement)">PDRM (Traffic Investigation & Enforcement)</option>
+                <option value="JPJ (Road Transport Department)">JPJ (Road Transport Department)</option>
+                <option value="MIROS (Road Safety Research)">MIROS (Road Safety Research)</option>
+                <option value="Local Municipal Council (PBT)">Local Municipal Council (PBT)</option>
+                <option value="Highway Concessionaire (PLUS/LLM)">Highway Concessionaire (PLUS/LLM)</option>
+              </select>
+            </div>
+
+            <div class="space-y-1">
+              <label for="profile-phone-input" class="text-xs font-bold text-slate-700 dark:text-slate-200">Official Phone Number</label>
+              <input type="text" id="profile-phone-input" placeholder="+60 12-345 6789" class="w-full px-3.5 py-2.5 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:border-blue-500 text-slate-800 dark:text-white">
+            </div>
+
+            <div id="profile-status-alert" class="hidden p-3 rounded-xl text-xs font-medium"></div>
+
+            <button type="submit" id="save-profile-btn" class="w-full py-2.5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold text-xs rounded-xl hover:bg-slate-800 dark:hover:bg-slate-100 transition-colors cursor-pointer shadow-xs">
+              Save Profile Changes
+            </button>
+          </form>
+
+        </div>
+      </div>
+
+      <!-- Right Column: Create New Admin Account Form (7 Cols) -->
+      <div class="lg:col-span-7 space-y-6">
+        <div class="bg-white dark:bg-slate-900 p-6 sm:p-7 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-5">
+          
+          <div class="border-b border-slate-100 dark:border-slate-800 pb-4">
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-mono font-bold px-2 py-0.5 rounded bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-900">PROVISION ACCESS</span>
+            </div>
+            <h3 class="font-display font-extrabold text-lg text-slate-900 dark:text-white mt-1">Create New Administrator Account</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Issue secure portal login credentials for verified traffic engineers, highway patrol officers, or municipal planning directors.</p>
+          </div>
+
+          <form id="create-admin-form" class="space-y-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div class="space-y-1">
+                <label for="new-admin-name" class="text-xs font-bold text-slate-700 dark:text-slate-200">Full Name *</label>
+                <input type="text" id="new-admin-name" required placeholder="e.g., Ir. Khairul Azman" class="w-full px-3.5 py-2.5 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:border-blue-500 text-slate-800 dark:text-white">
+              </div>
+
+              <div class="space-y-1">
+                <label for="new-admin-email" class="text-xs font-bold text-slate-700 dark:text-slate-200">Official Government/Agency Email *</label>
+                <input type="email" id="new-admin-email" required placeholder="e.g., khairul@jkr.gov.my" class="w-full px-3.5 py-2.5 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:border-blue-500 text-slate-800 dark:text-white">
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div class="space-y-1">
+                <label for="new-admin-agency" class="text-xs font-bold text-slate-700 dark:text-slate-200">Agency / Department *</label>
+                <select id="new-admin-agency" required class="w-full px-3.5 py-2.5 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none text-slate-800 dark:text-white">
+                  <option value="JKR (Public Works Department)">JKR (Public Works Department)</option>
+                  <option value="PDRM (Traffic Investigation & Enforcement)">PDRM (Traffic Investigation & Enforcement)</option>
+                  <option value="JPJ (Road Transport Department)">JPJ (Road Transport Department)</option>
+                  <option value="MIROS (Road Safety Research)">MIROS (Road Safety Research)</option>
+                  <option value="Local Municipal Council (PBT)">Local Municipal Council (PBT)</option>
+                  <option value="Highway Concessionaire (PLUS/LLM)">Highway Concessionaire (PLUS/LLM)</option>
+                </select>
+              </div>
+
+              <div class="space-y-1">
+                <label for="new-admin-phone" class="text-xs font-bold text-slate-700 dark:text-slate-200">Official Phone Number</label>
+                <input type="text" id="new-admin-phone" placeholder="e.g., +60 13-987 6543" class="w-full px-3.5 py-2.5 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:border-blue-500 text-slate-800 dark:text-white">
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div class="space-y-1">
+                <label for="new-admin-password" class="text-xs font-bold text-slate-700 dark:text-slate-200">Temporary Password *</label>
+                <input type="password" id="new-admin-password" required minlength="6" placeholder="Min. 6 characters" class="w-full px-3.5 py-2.5 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:border-blue-500 text-slate-800 dark:text-white">
+              </div>
+
+              <div class="space-y-1">
+                <label for="new-admin-confirm-password" class="text-xs font-bold text-slate-700 dark:text-slate-200">Confirm Password *</label>
+                <input type="password" id="new-admin-confirm-password" required minlength="6" placeholder="Repeat password" class="w-full px-3.5 py-2.5 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:border-blue-500 text-slate-800 dark:text-white">
+              </div>
+            </div>
+
+            <div id="create-admin-status" class="hidden p-3 rounded-xl text-xs font-medium"></div>
+
+            <div class="pt-2 flex justify-end">
+              <button type="submit" id="create-admin-btn" class="w-full sm:w-auto px-6 py-3 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold text-xs rounded-xl shadow-lg shadow-blue-500/20 transition-all cursor-pointer flex items-center justify-center gap-2">
+                <span>➕ Create Administrator Account</span>
+              </button>
+            </div>
+          </form>
+
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Active Administrator Directory Card -->
+    <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xs p-6 sm:p-7 space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+        <div>
+          <h3 class="font-display font-extrabold text-base text-slate-900 dark:text-white">Authorized Administrators Directory</h3>
+          <p class="text-xs text-slate-400">Personnel currently holding administrative permissions to add accident records and generate engineering road plans.</p>
+        </div>
+        <span id="admins-count-badge" class="px-2.5 py-1 rounded-full bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-300 font-mono text-xs font-bold">0 Active Admins</span>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-50/80 dark:bg-slate-800/60 border-b border-slate-200/80 dark:border-slate-800 text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider font-mono">
+            <tr>
+              <th class="py-3 px-4">Administrator Name</th>
+              <th class="py-3 px-4">Official Email</th>
+              <th class="py-3 px-4">Agency / Department</th>
+              <th class="py-3 px-4">Status</th>
+              <th class="py-3 px-4">Created Date</th>
+            </tr>
+          </thead>
+          <tbody id="admins-table-body" class="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-200">
+            <tr>
+              <td colspan="5" class="py-8 text-center text-slate-400">Loading administrators...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <script type="module" src="/js/navigation.js"></script>
+  <script type="module" src="/js/admin-account.js"></script>
+</body>
+</html>
